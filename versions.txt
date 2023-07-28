@@ -1,3 +1,8 @@
 jma.zip=1.0
 pic.zip=1.0
+sty.zip=1.0
 data.zip=1.0
+aLogin.exe=1.0
+aLoginModified.exe=1.0
+SERVER.INI=1.0
+menu.zip=1.0
