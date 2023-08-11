@@ -53,10 +53,39 @@ $dataFilesToDownload = @(
 # Change to the script's directory
 Set-Location -Path $workingDirectory
 
-# Introduce a delay between downloads
-$downloadDelaySeconds = 5  # Adjust the delay time as needed
-Write-Host "Delaying for $downloadDelaySeconds seconds before downloading additional files..."
-Start-Sleep -Seconds $downloadDelaySeconds
+# Download and check the MD5 hash of SERVER.INI
+$serverIniFile = Join-Path $workingDirectory "SERVER.INI"
+$serverIniTempFile = Join-Path $workingDirectory "SERVER_temp.INI"
+$serverIniURL = "https://github.com/RegistryAlive/4444/raw/main/SERVER.INI"
+
+Write-Host -ForegroundColor Green "Downloading SERVER.INI..."
+Invoke-WebRequest $serverIniURL -OutFile $serverIniTempFile
+
+$expectedServerIniMD5 = Get-FileHash $serverIniFile -Algorithm MD5
+$downloadedServerIniMD5 = Get-FileHash $serverIniTempFile -Algorithm MD5
+
+if (-not (Test-Path $serverIniFile) -or $downloadedServerIniMD5.Hash -ne $expectedServerIniMD5.Hash) {
+    Move-Item -Path $serverIniTempFile -Destination $serverIniFile -Force
+    Write-Host -ForegroundColor Red "SERVER.INI is missing or different."
+} else {
+    Remove-Item $serverIniTempFile -Force
+    Write-Host -ForegroundColor Yellow "You have the updated SERVER.INI."
+}
+
+# Similar handling for aLogin.exe and aLoginModified.exe
+$aLoginFile = Join-Path $workingDirectory "aLogin.exe"
+$aLoginModifiedFile = Join-Path $workingDirectory "aLoginModified.exe"
+$aLoginURL = "https://github.com/RegistryAlive/4444/raw/main/aLogin.exe"
+$aLoginModifiedURL = "https://github.com/RegistryAlive/4444/raw/main/aLoginModified.exe"
+
+# Download and check aLogin.exe
+Write-Host -ForegroundColor Green "Downloading aLogin.exe..."
+Invoke-WebRequest $aLoginURL -OutFile $aLoginFile
+
+# Download and check aLoginModified.exe
+Write-Host -ForegroundColor Green "Downloading aLoginModified.exe..."
+Invoke-WebRequest $aLoginModifiedURL -OutFile $aLoginModifiedFile
+
 
 # Download and check the MD5 hash of Version.txt
 $versionFile = Join-Path $workingDirectory "Version.txt"
