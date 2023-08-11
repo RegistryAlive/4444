@@ -1,8 +1,3 @@
-function DownloadFile($url, $destinationPath) {
-    Write-Host -ForegroundColor Green "Downloading $($destinationPath | Split-Path -Leaf)..."
-    $webClient.DownloadFile($url, $destinationPath)
-    }
-
 function DownloadAndExtractFiles($file, $filesToDownload, $destinationFolder) {
     # Create the destination folder if it doesn't exist
     if (!(Test-Path $destinationFolder)) {
@@ -19,13 +14,11 @@ function DownloadAndExtractFiles($file, $filesToDownload, $destinationFolder) {
         Write-Host -ForegroundColor Green "Downloading $fileName..."
         $webClient.DownloadFile($url, $downloadPath)
 
-        if ($fileName -like "*.zip") {
+        if ($fileName -like "*.zip" , "*.exe" "*.INI") {
             DownloadFile $url $downloadPath  # Download the ZIP file
             Write-Host -ForegroundColor Blue "Extracting $fileName..."
             Expand-Archive -Path $downloadPath -DestinationPath $destinationFolder -Force
             Remove-Item $downloadPath -ErrorAction SilentlyContinue  # Remove the downloaded ZIP file
-        } else {
-            DownloadFile $url $downloadPath  # Download individual files
         }
 
         # Remove the downloaded zip file
