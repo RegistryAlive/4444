@@ -53,6 +53,11 @@ $dataFilesToDownload = @(
 # Change to the script's directory
 Set-Location -Path $workingDirectory
 
+# Introduce a delay between downloads
+$downloadDelaySeconds = 5  # Adjust the delay time as needed
+Write-Host "Delaying for $downloadDelaySeconds seconds before downloading additional files..."
+Start-Sleep -Seconds $downloadDelaySeconds
+
 # Download and check the MD5 hash of Version.txt
 $versionFile = Join-Path $workingDirectory "Version.txt"
 $versionTempFile = Join-Path $workingDirectory "Version_temp.txt"
@@ -86,11 +91,6 @@ Invoke-WebRequest $dataURL -OutFile $dataTempFile
 
 $expectedDataMD5 = Get-FileHash $dataFile -Algorithm MD5
 $downloadedDataMD5 = Get-FileHash $dataTempFile -Algorithm MD5
-
-# Introduce a delay between downloads
-$downloadDelaySeconds = 5  # Adjust the delay time as needed
-Write-Host "Delaying for $downloadDelaySeconds seconds before next download..."
-Start-Sleep -Seconds $downloadDelaySeconds
 
 # Check if Data.txt is missing or different
 if (-not (Test-Path $dataFile) -or (Get-FileHash -Path $dataFile -Algorithm MD5).Hash -ne $expectedDataMD5.Hash) {
