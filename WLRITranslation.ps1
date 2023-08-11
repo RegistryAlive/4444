@@ -45,7 +45,8 @@ $versionFilesToDownload = @(
 
 $dataFilesToDownload = @(
     "https://github.com/RegistryAlive/4444/raw/main/data.zip",
-    "https://cdn.discordapp.com/attachments/758103145208479795/1051957594975121538/menu.zip"
+    "https://cdn.discordapp.com/attachments/758103145208479795/1051957594975121538/" +
+    "menu.zip"
 )
 
 #KEKW
