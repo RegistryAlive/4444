@@ -1,3 +1,4 @@
+
 function DownloadAndExtractFiles($file, $filesToDownload, $destinationFolder) {
     # Create the destination folder if it doesn't exist
     if (!(Test-Path $destinationFolder)) {
@@ -14,11 +15,9 @@ function DownloadAndExtractFiles($file, $filesToDownload, $destinationFolder) {
         Write-Host -ForegroundColor Green "Downloading $fileName..."
         $webClient.DownloadFile($url, $downloadPath)
 
-        if ($fileName -like "*.zip" , "*.exe" "*.INI") {
-            DownloadFile $url $downloadPath  # Download the ZIP file
-            Write-Host -ForegroundColor Blue "Extracting $fileName..."
-            Expand-Archive -Path $downloadPath -DestinationPath $destinationFolder -Force
-            Remove-Item $downloadPath -ErrorAction SilentlyContinue  # Remove the downloaded ZIP file
+        if ($fileName -like "*.zip") {
+        Write-Host -ForegroundColor Blue "Extracting $fileName..."
+        Expand-Archive -Path $downloadPath -DestinationPath $destinationFolder -Force
         }
 
         # Remove the downloaded zip file
@@ -47,10 +46,15 @@ $versionFilesToDownload = @(
 $dataFilesToDownload = @(
     "https://github.com/RegistryAlive/4444/raw/main/data.zip",
     "https://cdn.discordapp.com/attachments/758103145208479795/1051957594975121538/menu.zip",
-    "https://github.com/RegistryAlive/4444/raw/main/SERVER.INI",
-    "https://github.com/RegistryAlive/4444/raw/main/aLogin.exe",
-    "https://github.com/RegistryAlive/4444/raw/main/aLoginModified.exe"
 )
+#KEKW
+$serverIniFile = Join-Path $workingDirectory "SERVER.INI"
+$serverIniURL = "https://github.com/RegistryAlive/4444/raw/main/SERVER.INI"
+$aLoginFile = Join-Path $workingDirectory "aLogin.exe"
+$aLoginModifiedFile = Join-Path $workingDirectory "aLoginModified.exe"
+$aLoginURL = "https://github.com/RegistryAlive/4444/raw/main/aLogin.exe"
+$aLoginModifiedURL = "https://github.com/RegistryAlive/4444/raw/main/aLoginModified.exe"
+
 
 # Change to the script's directory
 Set-Location -Path $workingDirectory
@@ -95,9 +99,14 @@ if (-not (Test-Path $dataFile) -or (Get-FileHash -Path $dataFile -Algorithm MD5)
     if (Test-Path $dataTempFile) {
         Move-Item -Path $dataTempFile -Destination $dataFile -Force
     }
-
     Write-Host "Data.txt is missing or different. Downloading additional files..."
     DownloadAndExtractFiles $dataFile $dataFilesToDownload $workingDirectory
+    Write-Host -ForegroundColor Green "Downloading SERVER.INI..."
+    Invoke-WebRequest $serverIniURL -OutFile $serverIniFile
+    Write-Host -ForegroundColor Green "Downloading aLogin.exe..."
+    Invoke-WebRequest $aLoginURL -OutFile $aLoginFile
+    Write-Host -ForegroundColor Green "Downloading aLoginModified.exe..."
+    Invoke-WebRequest $aLoginModifiedURL -OutFile $aLoginModifiedFile
 }
 else {
     # Remove the temporary downloaded file
