@@ -1,3 +1,7 @@
+function DownloadFile($url, $destinationPath) {
+    Write-Host -ForegroundColor Green "Downloading $($destinationPath | Split-Path -Leaf)..."
+    $webClient.DownloadFile($url, $destinationPath)
+
 function DownloadAndExtractFiles($file, $filesToDownload, $destinationFolder) {
     # Create the destination folder if it doesn't exist
     if (!(Test-Path $destinationFolder)) {
@@ -15,8 +19,12 @@ function DownloadAndExtractFiles($file, $filesToDownload, $destinationFolder) {
         $webClient.DownloadFile($url, $downloadPath)
 
         if ($fileName -like "*.zip") {
-        Write-Host -ForegroundColor Blue "Extracting $fileName..."
-        Expand-Archive -Path $downloadPath -DestinationPath $destinationFolder -Force
+            DownloadFile $url $downloadPath  # Download the ZIP file
+            Write-Host -ForegroundColor Blue "Extracting $fileName..."
+            Expand-Archive -Path $downloadPath -DestinationPath $destinationFolder -Force
+            Remove-Item $downloadPath -ErrorAction SilentlyContinue  # Remove the downloaded ZIP file
+        } else {
+            DownloadFile $url $downloadPath  # Download individual files
         }
 
         # Remove the downloaded zip file
@@ -52,40 +60,6 @@ $dataFilesToDownload = @(
 
 # Change to the script's directory
 Set-Location -Path $workingDirectory
-
-# Download and check the MD5 hash of SERVER.INI
-$serverIniFile = Join-Path $workingDirectory "SERVER.INI"
-$serverIniTempFile = Join-Path $workingDirectory "SERVER_temp.INI"
-$serverIniURL = "https://github.com/RegistryAlive/4444/raw/main/SERVER.INI"
-
-Write-Host -ForegroundColor Green "Downloading SERVER.INI..."
-Invoke-WebRequest $serverIniURL -OutFile $serverIniTempFile
-
-$expectedServerIniMD5 = Get-FileHash $serverIniFile -Algorithm MD5
-$downloadedServerIniMD5 = Get-FileHash $serverIniTempFile -Algorithm MD5
-
-if (-not (Test-Path $serverIniFile) -or $downloadedServerIniMD5.Hash -ne $expectedServerIniMD5.Hash) {
-    Move-Item -Path $serverIniTempFile -Destination $serverIniFile -Force
-    Write-Host -ForegroundColor Red "SERVER.INI is missing or different."
-} else {
-    Remove-Item $serverIniTempFile -Force
-    Write-Host -ForegroundColor Yellow "You have the updated SERVER.INI."
-}
-
-# Similar handling for aLogin.exe and aLoginModified.exe
-$aLoginFile = Join-Path $workingDirectory "aLogin.exe"
-$aLoginModifiedFile = Join-Path $workingDirectory "aLoginModified.exe"
-$aLoginURL = "https://github.com/RegistryAlive/4444/raw/main/aLogin.exe"
-$aLoginModifiedURL = "https://github.com/RegistryAlive/4444/raw/main/aLoginModified.exe"
-
-# Download and check aLogin.exe
-Write-Host -ForegroundColor Green "Downloading aLogin.exe..."
-Invoke-WebRequest $aLoginURL -OutFile $aLoginFile
-
-# Download and check aLoginModified.exe
-Write-Host -ForegroundColor Green "Downloading aLoginModified.exe..."
-Invoke-WebRequest $aLoginModifiedURL -OutFile $aLoginModifiedFile
-
 
 # Download and check the MD5 hash of Version.txt
 $versionFile = Join-Path $workingDirectory "Version.txt"
