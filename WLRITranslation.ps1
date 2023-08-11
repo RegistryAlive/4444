@@ -1,7 +1,6 @@
 function DownloadFile($url, $destinationPath) {
     Write-Host -ForegroundColor Green "Downloading $($destinationPath | Split-Path -Leaf)..."
-    $webClient.DownloadFile($url, $destinationPath)
-}
+    $webClient.DownloadFile($url, $destinationPath)}
 
 function DownloadAndExtractFiles($file, $filesToDownload, $destinationFolder) {
     # Create the destination folder if it doesn't exist
